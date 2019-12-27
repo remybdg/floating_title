@@ -1,9 +1,19 @@
 
 // texte à afficher
-const title = 'titretest';
+const title = 'A';
 
 // multiplicateur de lettres
-const multiplicator = 3;
+const multiplicator = 1;
+
+// taille de base 
+
+// nom du container
+const container = document.getElementById('container');
+
+const maxX = container.offsetWidth;
+const maxY = container.offsetHeight;
+console.log(maxX, maxY);
+
 
 function totalLettersCreate() {
     let letters = [];
@@ -16,44 +26,102 @@ function totalLettersCreate() {
     return letters;
 }
 
+function showLetters() {
+	let letters = totalLettersCreate();
+	console.log(letters);
 
-// taille de base 
+	let lettersCoordinates= [];
 
-// nom du container
-const container = document.getElementById('container');
+	for (letter of letters) {
+		var node = document.createElement("span");
+		var textnode = document.createTextNode(letter);
+		node.appendChild(textnode);
+		node.classList.add("letter");
 
+		let letterX = Math.floor(Math.random() * 105); ;
+		let letterY = Math.floor(Math.random() * 105); ;
+	    node.style.left = letterX + "vw";
+		node.style.top = letterY+ "vh"; 
+		node.dataset.x = letterX;
+		node.dataset.y = letterY;
+		let letterCoordinates = [];
+		letterCoordinates.x = letterX;
+		letterCoordinates.y = letterY;
+		lettersCoordinates.push(letterCoordinates);
 
-
-
-
-
-
-
-
-var lettreTabElt = document.getElementsByClassName("lettre");
-	
-	var lettreTitreTabElt = document.getElementsByClassName("lettreTitre");
-
-	var lettreCoorTab = [];
-
-	var maxX = document.getElementById("sl0").offsetWidth;
-	var maxY = document.getElementById("sl0").offsetHeight;
-	//console.log(maxX, maxY);
-	
-	var x;
-	var y;
-	
-	var cptOp;
-	for(cptOp=0; cptOp<lettreTabElt.length; cptOp++) {
-		lettreCoorTab[cptOp] = [];
-		//console.log(lettreTabElt[cptOp]);
-		var lettreX = Math.floor(Math.random() * 105); ;
-		var lettreY = Math.floor(Math.random() * 105); ;
-	    lettreTabElt[cptOp].style.left = lettreX + "vw";
-	    lettreTabElt[cptOp].style.top = lettreY+ "vh"; 
-		lettreCoorTab[cptOp].push(lettreX);
-		lettreCoorTab[cptOp].push(lettreY);
+		container.appendChild(node); 
 	}
+	return(lettersCoordinates);
+
+}
+
+
+let lettersCoordinates = showLetters();
+console.log(lettersCoordinates);
+let cx;
+let cy;
+let x;
+let y;
+
+container.addEventListener('mouseenter', e => {
+	x = e.clientX;
+	y = e.clientY;
+	
+	x = (x*100/maxX).toFixed(2);
+	y= (y *100/maxY).toFixed(2);
+	console.log(x, y);
+  });
+
+container.addEventListener('mousemove', e => {
+	cx = e.clientX;
+	cy = e.clientY;
+	
+	cx = (cx*100/maxX).toFixed(2);
+	cy = (cy *100/maxY).toFixed(2);
+	console.log(cx, cy);
+
+	let lettersElts = document.getElementsByClassName('letter');
+	for (letterElt of lettersElts) {
+		console.log((letterElt.dataset.x+(Number(cx)-Number(x))/10));	
+		console.log(typeof(cy));	
+		// letterElt.style.left = (letterElt.dataset.x+(cx-x)/100)+"vw";
+		// letterElt.style.top = (letterElt.dataset.y+(cy-y)/100)+"vh";
+		// console.log(letterElt.dataset.x, cx, x, letterElt.style.left);	
+		// console.log(letterElt.dataset.y, cy, y, letterElt.style.top);	
+	}
+});
+
+function letterMove(elt) {
+	for (letterCoord of lettersCoordinates) {
+		elt.style.left = ((letterCoord.x)+(cx-x)/4)+"vw";
+		elt.style.top = ((letterCoord.y)+(cy-y)/4)+"vh"; 	
+	}
+}
+
+// var lettreTabElt = document.getElementsByClassName("lettre");
+	
+	// var lettreTitreTabElt = document.getElementsByClassName("lettreTitre");
+
+	// var lettreCoorTab = [];
+
+	// var maxX = container.offsetWidth;
+	// var maxY = container.offsetHeight;
+	// console.log(maxX, maxY);
+	
+	// var x;
+	// var y;
+	
+	// var cptOp;
+	// for(cptOp=0; cptOp<lettreTabElt.length; cptOp++) {
+	// 	lettreCoorTab[cptOp] = [];
+	// 	//console.log(lettreTabElt[cptOp]);
+	// 	var lettreX = Math.floor(Math.random() * 105); ;
+	// 	var lettreY = Math.floor(Math.random() * 105); ;
+	//     lettreTabElt[cptOp].style.left = lettreX + "vw";
+	//     lettreTabElt[cptOp].style.top = lettreY+ "vh"; 
+	// 	lettreCoorTab[cptOp].push(lettreX);
+	// 	lettreCoorTab[cptOp].push(lettreY);
+	// }
 	//console.log(lettreCoorTab);
 	
 	function getCoor(event) {
