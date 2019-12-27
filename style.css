@@ -1,0 +1,16 @@
+body {
+    background-color: navy;
+    margin: 0;
+    color: #fff
+}
+
+#container {
+    width: 100 vw;
+    height: 100vh;
+    border: 5px solid yellow;
+}
+
+.letter {
+    position: absolute;
+    font-size: 4rem;
+}
