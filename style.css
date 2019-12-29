@@ -1,16 +1,18 @@
 body {
-    background-color: navy;
     margin: 0;
     color: #fff
 }
 
 #container {
-    width: 100 vw;
-    height: 100vh;
+    position: relative;
+    background-color: navy;
+    width: 75vw;
+    height: 75vh;
     border: 5px solid yellow;
 }
 
 .letter {
-    position: absolute;
+    position: relative;
     font-size: 4rem;
+    color: red;
 }

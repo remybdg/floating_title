@@ -1,9 +1,9 @@
 
 // texte à afficher
-const title = 'A';
+const title = 'TEST';
 
 // multiplicateur de lettres
-const multiplicator = 1;
+const multiplicator = 3;
 
 // taille de base 
 
@@ -38,10 +38,10 @@ function showLetters() {
 		node.appendChild(textnode);
 		node.classList.add("letter");
 
-		let letterX = Math.floor(Math.random() * 105); ;
-		let letterY = Math.floor(Math.random() * 105); ;
-	    node.style.left = letterX + "vw";
-		node.style.top = letterY+ "vh"; 
+		let letterX = Math.floor(Math.random() * 90); ;
+		let letterY = Math.floor(Math.random() * 90); ;
+	    node.style.left = letterX + "%";
+		node.style.top = letterY+ "%"; 
 		node.dataset.x = letterX;
 		node.dataset.y = letterY;
 		let letterCoordinates = [];
@@ -67,8 +67,8 @@ container.addEventListener('mouseenter', e => {
 	x = e.clientX;
 	y = e.clientY;
 	
-	x = (x*100/maxX).toFixed(2);
-	y= (y *100/maxY).toFixed(2);
+	x = (x*100/maxX);
+	y= (y *100/maxY);
 	console.log(x, y);
   });
 
@@ -82,19 +82,16 @@ container.addEventListener('mousemove', e => {
 
 	let lettersElts = document.getElementsByClassName('letter');
 	for (letterElt of lettersElts) {
-		console.log((letterElt.dataset.x+(Number(cx)-Number(x))/10));	
-		console.log(typeof(cy));	
-		// letterElt.style.left = (letterElt.dataset.x+(cx-x)/100)+"vw";
-		// letterElt.style.top = (letterElt.dataset.y+(cy-y)/100)+"vh";
-		// console.log(letterElt.dataset.x, cx, x, letterElt.style.left);	
-		// console.log(letterElt.dataset.y, cy, y, letterElt.style.top);	
+		letterMove(letterElt)
 	}
 });
 
 function letterMove(elt) {
 	for (letterCoord of lettersCoordinates) {
-		elt.style.left = ((letterCoord.x)+(cx-x)/4)+"vw";
-		elt.style.top = ((letterCoord.y)+(cy-y)/4)+"vh"; 	
+		letterElt.style.left = (Number(letterElt.dataset.x)+(cx-x)/10)+"%";
+		letterElt.style.top = (Number(letterElt.dataset.y)+(cy-y)/10)+"%";
+		console.log(letterElt.dataset.x, cx, x, letterElt.style.left);	
+		console.log(letterElt.dataset.y, cy, y, letterElt.style.top);		
 	}
 }
 
