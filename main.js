@@ -1,11 +1,18 @@
 
 // texte à afficher
-const title = 'TEST';
+const title = 'ALPHABET';
 
 // multiplicateur de lettres
 const multiplicator = 3;
 
 // taille de base 
+const size = 50;
+
+// unité de taillede font
+const unit = "px";
+
+// sizeDifference
+const sizeDifference = 2;
 
 // nom du container
 const container = document.getElementById('container');
@@ -27,29 +34,37 @@ function totalLettersCreate() {
 }
 
 function showLetters() {
-	let letters = totalLettersCreate();
+	let letters = title.split('');
 	console.log(letters);
 
 	let lettersCoordinates= [];
 
-	for (letter of letters) {
-		var node = document.createElement("span");
-		var textnode = document.createTextNode(letter);
-		node.appendChild(textnode);
-		node.classList.add("letter");
+	for (var i=1; i<=multiplicator; i++) {
 
-		let letterX = Math.floor(Math.random() * 90); ;
-		let letterY = Math.floor(Math.random() * 90); ;
-	    node.style.left = letterX + "%";
-		node.style.top = letterY+ "%"; 
-		node.dataset.x = letterX;
-		node.dataset.y = letterY;
-		let letterCoordinates = [];
-		letterCoordinates.x = letterX;
-		letterCoordinates.y = letterY;
-		lettersCoordinates.push(letterCoordinates);
+		for (letter of letters) {
+			var node = document.createElement("span");
+			var textnode = document.createTextNode(letter);
+			node.appendChild(textnode);
+			
+			let newsize = size - i * sizeDifference;
 
-		container.appendChild(node); 
+			node.classList.add("letter");
+			node.style.fontSize = newsize + unit;
+			
+			let letterX = Math.floor(Math.random() * 90); ;
+			let letterY = Math.floor(Math.random() * 90); ;
+			node.style.left = letterX + "%";
+			node.style.top = letterY+ "%"; 
+			node.dataset.x = letterX;
+			node.dataset.y = letterY;
+			node.dataset.i = multiplicator - i;
+			let letterCoordinates = [];
+			letterCoordinates.x = letterX;
+			letterCoordinates.y = letterY;
+			lettersCoordinates.push(letterCoordinates);
+			
+			container.appendChild(node); 
+		}
 	}
 	return(lettersCoordinates);
 
@@ -69,7 +84,7 @@ container.addEventListener('mouseenter', e => {
 	
 	x = (x*100/maxX);
 	y= (y *100/maxY);
-	console.log(x, y);
+	// console.log(x, y);
   });
 
 container.addEventListener('mousemove', e => {
@@ -78,7 +93,7 @@ container.addEventListener('mousemove', e => {
 	
 	cx = (cx*100/maxX).toFixed(2);
 	cy = (cy *100/maxY).toFixed(2);
-	console.log(cx, cy);
+	// console.log(cx, cy);
 
 	let lettersElts = document.getElementsByClassName('letter');
 	for (letterElt of lettersElts) {
@@ -88,10 +103,10 @@ container.addEventListener('mousemove', e => {
 
 function letterMove(elt) {
 	for (letterCoord of lettersCoordinates) {
-		letterElt.style.left = (Number(letterElt.dataset.x)+(cx-x)/10)+"%";
-		letterElt.style.top = (Number(letterElt.dataset.y)+(cy-y)/10)+"%";
-		console.log(letterElt.dataset.x, cx, x, letterElt.style.left);	
-		console.log(letterElt.dataset.y, cy, y, letterElt.style.top);		
+		letterElt.style.left = (Number(letterElt.dataset.x)+(cx-x)/(12-letterElt.dataset.i*2))+"%";
+		letterElt.style.top = (Number(letterElt.dataset.y)+(cy-y)/(12-letterElt.dataset.i*2))+"%";
+		// console.log(letterElt.dataset.x, cx, x, letterElt.style.left);	
+		// console.log(letterElt.dataset.y, cy, y, letterElt.style.top);
 	}
 }
 
