@@ -1,26 +1,85 @@
+/******************************** SETTINGS *********************************/
 
-// texte à afficher
+// your text / votre texte :
 const title = 'ALPHABET';
 
-// multiplicateur de lettres
-const multiplicator = 3;
+// how many layer of text / combien de couche de texte :
+const multiplicator = 7;
 
-// taille de base 
-const size = 50;
+// size of biggest layer of text (without unit) / taille de la plus grande couche de texte( sans les unités ): 
+const size = 10;
 
-// unité de taillede font
-const unit = "px";
+// size unit / unité de taille : 
+const unit = 'rem';
 
-// sizeDifference
-const sizeDifference = 2;
+// size gap between layers of text / écart de taille entre les couches de texte :
+const sizeGap = 1 ;
 
-// nom du container
+// biggest layer offset with cursor movement / décalage entre la plus grande couche et le curseur : 
+	// must be > 0 (0.1 is OK),
+	// small offset -> the letters follows the cursor 
+	// big offset -> the letters do not move a lot
+const biggestLayerOffset = 2;
+
+// smallest layer offset with cursor movement / décalage entre la plus petite couche et le curseur : 
+	// for the correct result, must be bigger than biggestLayersOffset
+const smallestLayersOffset = 10 ;
+
+// container's id / id du container :
 const container = document.getElementById('container');
+
+// enable extra text layers fade out animation / activer animation de fondu des couches de texte supplémentaires
+const fadeOutAnim = true;
+
+// start fade out animation after (in milliseconds) / démarrer l'animation de fondu au bout de (en millisecondes) :
+const fadeOutAnimStart = 3000;
+
+// fade out animation duration / durée de l'animation de fondu : 
+const fadeOutAnimDuration = '6s';
+
+/******************************** VARIABLES *********************************/
 
 const maxX = container.offsetWidth;
 const maxY = container.offsetHeight;
 console.log(maxX, maxY);
 
+let cx;
+let cy;
+let x;
+let y;
+
+/******************************** FUNCTIONS CALL *********************************/
+
+showLetters();
+
+container.addEventListener('mouseenter', onMouseEnter);
+container.addEventListener('mousemove', onMouseMove);
+
+if (fadeOutAnim) {
+	var intervalFade = setTimeout(fadeLetters, fadeOutAnimStart);	
+}
+
+/******************************** FUNCTIONS *********************************/
+function fadeLetters() {
+	console.log('fade');
+	let letters = document.getElementsByClassName('letter');
+	for(let i = title.length; i<letters.length; i++) {
+		letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration + ' forwards';
+	}
+	var ft = setTimeout(function(){
+		container.removeEventListener('mouseenter', onMouseEnter);
+		container.removeEventListener('mousemove', onMouseMove);
+		container.style.cursor ='default';
+		for(let i = 0; i<title.length; i++) {
+				letters[i].style.transition = '4s';
+				letters[i].style.left = '45%';
+				letters[i].style.top = '40%';
+				letters[i].style.animation = 'fade-out 2s forwards';
+				var ftf = setTimeout(function(){
+					document.querySelector('.final-title').classList.remove('hidden'); }, 2000);
+		}}, 4000);
+
+}
 
 function totalLettersCreate() {
     let letters = [];
@@ -34,19 +93,31 @@ function totalLettersCreate() {
 }
 
 function showLetters() {
+
+	finalTitleCreate();
+
 	let letters = title.split('');
 	console.log(letters);
 
-	let lettersCoordinates= [];
+	// let lettersCoordinates= [];
 
-	for (var i=1; i<=multiplicator; i++) {
+	let divisor = biggestLayerOffset;
+	let divGap = (smallestLayersOffset - biggestLayerOffset) / (multiplicator - 1);
 
-		for (letter of letters) {
+	for (var i=0; i<multiplicator; i++) {
+		if(i > 0) {
+			divisor = divisor + divGap;
+			console.log(divisor);
+		}
+		for (const letter of letters) {
 			var node = document.createElement("span");
 			var textnode = document.createTextNode(letter);
 			node.appendChild(textnode);
 			
-			let newsize = size - i * sizeDifference;
+			let newsize = size - i * sizeGap;
+			if(newsize < 1) {
+				newsize = 1;
+			}
 
 			node.classList.add("letter");
 			node.style.fontSize = newsize + unit;
@@ -57,56 +128,50 @@ function showLetters() {
 			node.style.top = letterY+ "%"; 
 			node.dataset.x = letterX;
 			node.dataset.y = letterY;
-			node.dataset.i = multiplicator - i;
-			let letterCoordinates = [];
-			letterCoordinates.x = letterX;
-			letterCoordinates.y = letterY;
-			lettersCoordinates.push(letterCoordinates);
+			node.dataset.i = divisor.toFixed(3);
+			// let letterCoordinates = [];
+			// letterCoordinates.x = letterX;
+			// letterCoordinates.y = letterY;
+			// lettersCoordinates.push(letterCoordinates);
 			
 			container.appendChild(node); 
 		}
 	}
-	return(lettersCoordinates);
-
+	return;
 }
 
+function finalTitleCreate() {
+	var titleElt = document.createElement("h1");
+	titleElt.innerText = title;
+	titleElt.style.fontSize = size+unit;
+	titleElt.classList.add('hidden');
+	titleElt.classList.add('final-title');
+	container.appendChild(titleElt);
+}
 
-let lettersCoordinates = showLetters();
-console.log(lettersCoordinates);
-let cx;
-let cy;
-let x;
-let y;
-
-container.addEventListener('mouseenter', e => {
+function onMouseEnter(e) {
 	x = e.clientX;
 	y = e.clientY;
 	
-	x = (x*100/maxX);
-	y= (y *100/maxY);
+	x = (x * 100 / maxX);
+	y= (y * 100 / maxY);
 	// console.log(x, y);
-  });
+}
 
-container.addEventListener('mousemove', e => {
+function onMouseMove(e) {
 	cx = e.clientX;
 	cy = e.clientY;
 	
-	cx = (cx*100/maxX).toFixed(2);
-	cy = (cy *100/maxY).toFixed(2);
+	cx = (cx * 100 / maxX).toFixed(2);
+	cy = (cy * 100 / maxY).toFixed(2);
 	// console.log(cx, cy);
 
 	let lettersElts = document.getElementsByClassName('letter');
-	for (letterElt of lettersElts) {
-		letterMove(letterElt)
-	}
-});
-
-function letterMove(elt) {
-	for (letterCoord of lettersCoordinates) {
-		letterElt.style.left = (Number(letterElt.dataset.x)+(cx-x)/(12-letterElt.dataset.i*2))+"%";
-		letterElt.style.top = (Number(letterElt.dataset.y)+(cy-y)/(12-letterElt.dataset.i*2))+"%";
-		// console.log(letterElt.dataset.x, cx, x, letterElt.style.left);	
-		// console.log(letterElt.dataset.y, cy, y, letterElt.style.top);
+	for (const letterElt of lettersElts) {
+		// for (const [j, letterCoord] of lettersCoordinates.entries()) {
+			letterElt.style.left = (Number(letterElt.dataset.x)+(cx-x)/letterElt.dataset.i)+"%";
+			letterElt.style.top = (Number(letterElt.dataset.y)+(cy-y)/letterElt.dataset.i)+"%";
+		// }		
 	}
 }
 

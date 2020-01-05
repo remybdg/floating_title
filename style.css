@@ -6,10 +6,11 @@ body {
 
 #container {
     position: relative;
-    background-color: navy;
-    width: 90vw;
-    height: 90vh;
-    border: 5px solid yellow;
+    display: flex;
+    background-color: white;
+    width: 100vw;
+    height: 100vh;
+    /* border: 5px solid yellow; */
     font-family: 'Londrina Outline', cursive;
     overflow: hidden;
     cursor: move;
@@ -19,4 +20,29 @@ body {
 .letter {
     position: absolute;
     /* font-size: 4rem;: */
+}
+
+.fadeOut {
+    animation: fade-out 6s forwards;
+    -moz-animation: fade-out 6s forwards;
+    -webkit-animation: fade-out 6s forwards;
+    -o-animation: fade-out 6s forwards;
+
+}
+
+@keyframes fade-out {
+    0% {
+        opacity:1;
+    }
+    100% {
+        opacity:0;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+.final-title {
+    margin: auto;
 }
