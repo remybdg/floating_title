@@ -7,6 +7,8 @@ body {
 #container {
     position: relative;
     display: flex;
+    /*flex-direction: column;
+    justify-content: center;*/
     background-color: white;
     width: 100vw;
     height: 100vh;
@@ -44,5 +46,26 @@ body {
 }
 
 .final-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     margin: auto;
+    text-align: center;
+}
+
+.demo-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    border-radius: 25px;
+    border: solid 3px white;
+    margin: 0 auto;
+    color: #fff;
+    background-color: red;
+    padding: 1.5rem;
+    z-index: 5;
+    cursor: pointer;
 }

@@ -1,25 +1,25 @@
 /******************************** SETTINGS *********************************/
 
 // your text / votre texte :
-const title = 'ALPHABET';
+const title = 'FLOATING TITLE';
 
 // how many layer of text / combien de couche de texte :
 const multiplicator = 7;
 
 // size of biggest layer of text (without unit) / taille de la plus grande couche de texte( sans les unités ): 
-const size = 10;
+const size = 14;
 
 // size unit / unité de taille : 
 const unit = 'rem';
 
 // size gap between layers of text / écart de taille entre les couches de texte :
-const sizeGap = 1 ;
+const sizeGap = 2 ;
 
 // biggest layer offset with cursor movement / décalage entre la plus grande couche et le curseur : 
 	// must be > 0 (0.1 is OK),
 	// small offset -> the letters follows the cursor 
 	// big offset -> the letters do not move a lot
-const biggestLayerOffset = 2;
+const biggestLayerOffset = 4;
 
 // smallest layer offset with cursor movement / décalage entre la plus petite couche et le curseur : 
 	// for the correct result, must be bigger than biggestLayersOffset
@@ -32,10 +32,13 @@ const container = document.getElementById('container');
 const fadeOutAnim = true;
 
 // start fade out animation after (in milliseconds) / démarrer l'animation de fondu au bout de (en millisecondes) :
-const fadeOutAnimStart = 3000;
+const fadeOutAnimStart = 2000;
 
 // fade out animation duration / durée de l'animation de fondu : 
-const fadeOutAnimDuration = '6s';
+const fadeOutAnimDuration = 5000;
+
+// show demo button "again?" / afficher le bouton de demo "again?" :
+const demoEnable = true;
 
 /******************************** VARIABLES *********************************/
 
@@ -48,36 +51,52 @@ let cy;
 let x;
 let y;
 
+var intervalFade;
+
 /******************************** FUNCTIONS CALL *********************************/
 
 showLetters();
 
-container.addEventListener('mouseenter', onMouseEnter);
-container.addEventListener('mousemove', onMouseMove);
 
-if (fadeOutAnim) {
-	var intervalFade = setTimeout(fadeLetters, fadeOutAnimStart);	
-}
+
+
 
 /******************************** FUNCTIONS *********************************/
+
+function demoButtonBuild() {
+	var node = document.createElement("div");
+	var textnode = document.createTextNode("again ?");
+	node.appendChild(textnode);
+	node.classList.add("demo-btn");
+	node.classList.add("hidden");
+	node.addEventListener('click', onclickDemoBtn);
+	container.appendChild(node);
+}
+
+function onclickDemoBtn() {
+	console.log('again');
+	container.innerHTML = '';
+	showLetters();
+}
+
 function fadeLetters() {
 	console.log('fade');
 	let letters = document.getElementsByClassName('letter');
 	for(let i = title.length; i<letters.length; i++) {
-		letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration + ' forwards';
+		letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration/1000 + 's forwards';
 	}
-	var ft = setTimeout(function(){
+	setTimeout(function(){
 		container.removeEventListener('mouseenter', onMouseEnter);
 		container.removeEventListener('mousemove', onMouseMove);
 		container.style.cursor ='default';
 		for(let i = 0; i<title.length; i++) {
-				letters[i].style.transition = '4s';
+				letters[i].style.transition = fadeOutAnimDuration/1000 + 's';
 				letters[i].style.left = '45%';
 				letters[i].style.top = '40%';
-				letters[i].style.animation = 'fade-out 2s forwards';
-				var ftf = setTimeout(function(){
-					document.querySelector('.final-title').classList.remove('hidden'); }, 2000);
-		}}, 4000);
+				letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration/2000 + 's forwards';
+				setTimeout(function(){document.querySelector('.final-title').classList.remove('hidden'); }, fadeOutAnimDuration/2);
+				setTimeout(function(){document.querySelector('.demo-btn').classList.remove('hidden'); }, fadeOutAnimDuration/2 + 1500);
+		}}, fadeOutAnimDuration);
 
 }
 
@@ -93,6 +112,16 @@ function totalLettersCreate() {
 }
 
 function showLetters() {
+	container.addEventListener('mouseenter', onMouseEnter);
+	container.addEventListener('mousemove', onMouseMove);
+
+	if (fadeOutAnim) {
+		intervalFade = setTimeout(fadeLetters, fadeOutAnimStart);	
+	}
+	
+	if (demoEnable) {
+		demoButtonBuild()	
+	}
 
 	finalTitleCreate();
 
@@ -107,7 +136,6 @@ function showLetters() {
 	for (var i=0; i<multiplicator; i++) {
 		if(i > 0) {
 			divisor = divisor + divGap;
-			console.log(divisor);
 		}
 		for (const letter of letters) {
 			var node = document.createElement("span");
