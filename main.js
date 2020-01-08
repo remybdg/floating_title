@@ -3,6 +3,9 @@
 // your text / votre texte :
 const title = 'FLOATING TITLE';
 
+// container's id / id du container :
+const container = document.getElementById('container');
+
 // how many layer of text / combien de couche de texte :
 const multiplicator = 7;
 
@@ -22,23 +25,23 @@ const sizeGap = 2 ;
 const biggestLayerOffset = 4;
 
 // smallest layer offset with cursor movement / décalage entre la plus petite couche et le curseur : 
-	// for the correct result, must be bigger than biggestLayersOffset
+	// must be bigger than biggestLayersOffset
 const smallestLayersOffset = 10 ;
-
-// container's id / id du container :
-const container = document.getElementById('container');
 
 // enable extra text layers fade out animation / activer animation de fondu des couches de texte supplémentaires
 const fadeOutAnim = true;
 
-// start fade out animation after (in milliseconds) / démarrer l'animation de fondu au bout de (en millisecondes) :
-const fadeOutAnimStart = 2000;
+	// start fade out animation after (in milliseconds) / démarrer l'animation de fondu au bout de (en millisecondes) :
+	const fadeOutAnimStart = 3000;
 
-// fade out animation duration / durée de l'animation de fondu : 
-const fadeOutAnimDuration = 5000;
+	// fade out animation duration (in milliseconds) / durée de l'animation de fondu (en millisecondes): 
+	const fadeOutAnimDuration = 5000;
 
-// show demo button "again?" / afficher le bouton de demo "again?" :
-const demoEnable = true;
+	// add a rotating animation to the title letters before the fade / ajouter une rotation aux lettres du titre avant le fondu
+	const rotateAnim = true;
+
+	// show demo button "again?" / afficher le bouton de demo "again?" :
+	const demoEnable = true;
 
 /******************************** VARIABLES *********************************/
 
@@ -89,14 +92,30 @@ function fadeLetters() {
 		container.removeEventListener('mouseenter', onMouseEnter);
 		container.removeEventListener('mousemove', onMouseMove);
 		container.style.cursor ='default';
+		let timer = 0;
 		for(let i = 0; i<title.length; i++) {
-				letters[i].style.transition = fadeOutAnimDuration/1000 + 's';
+			if(rotateAnim) {
+				console.log('rotate');
+				timer += 200;
+				setTimeout(function(){
+					letters[i].style.transition = 'left ' + fadeOutAnimDuration/1000 + 's' + ', top ' + fadeOutAnimDuration/1000 + 's'; 
+					letters[i].style.left = '45%';
+					letters[i].style.top = '40%';
+					letters[i].style.animation = 'rotate-360 ' + fadeOutAnimDuration/2000 + 's forwards';
+				}, timer);
+			}
+			else {
+				console.log('pas rotate');
+				letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration/2000 + 's forwards';
+				letters[i].style.transition = 'left ' + fadeOutAnimDuration/1000 + 's' + ', top ' + fadeOutAnimDuration/1000 + 's'; 
 				letters[i].style.left = '45%';
 				letters[i].style.top = '40%';
-				letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration/2000 + 's forwards';
-				setTimeout(function(){document.querySelector('.final-title').classList.remove('hidden'); }, fadeOutAnimDuration/2);
-				setTimeout(function(){document.querySelector('.demo-btn').classList.remove('hidden'); }, fadeOutAnimDuration/2 + 1500);
-		}}, fadeOutAnimDuration);
+			}
+		}
+		setTimeout(function(){document.querySelector('.final-title').classList.remove('hidden'); }, timer + fadeOutAnimDuration/2);
+		setTimeout(function(){document.querySelector('.demo-btn').classList.remove('hidden'); }, timer + fadeOutAnimDuration/2 + 1500);
+	
+	}, fadeOutAnimDuration);
 
 }
 

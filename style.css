@@ -32,12 +32,31 @@ body {
 
 }
 
+.rotate {
+    animation: rotate-360 4s forwards;
+    -moz-animation: rotate-360 4s forwards;
+    -webkit-animation: rotate-360 4s forwards;
+    -o-animation: rotate-360 4s forwards;
+	transition-timing-function: ease-in;
+}
+
 @keyframes fade-out {
     0% {
         opacity:1;
     }
     100% {
         opacity:0;
+    }
+}
+
+@keyframes rotate-360 {
+    0% {
+        transform: rotate(0deg); 
+        opacity: 1;
+      }
+      100% {
+        transform: rotate(355deg); 
+        opacity: 0;
     }
 }
 
@@ -58,6 +77,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif ;
     transform: translate(-50%, -50%);
     font-size: 2rem;
     border-radius: 25px;
