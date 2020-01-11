@@ -16,7 +16,7 @@ const size = 14;
 const unit = 'rem';
 
 // size gap between layers of text / écart de taille entre les couches de texte :
-const sizeGap = 2 ;
+const sizeGap = 1.5 ;
 
 // biggest layer offset with cursor movement / décalage entre la plus grande couche et le curseur : 
 	// must be > 0 (0.1 is OK),
@@ -47,7 +47,7 @@ const fadeOutAnim = true;
 
 const maxX = container.offsetWidth;
 const maxY = container.offsetHeight;
-console.log(maxX, maxY);
+// console.log(maxX, maxY);
 
 let cx;
 let cy;
@@ -61,139 +61,63 @@ var intervalFade;
 showLetters();
 
 
-
-
-
 /******************************** FUNCTIONS *********************************/
 
-function demoButtonBuild() {
-	var node = document.createElement("div");
-	var textnode = document.createTextNode("again ?");
-	node.appendChild(textnode);
-	node.classList.add("demo-btn");
-	node.classList.add("hidden");
-	node.addEventListener('click', onclickDemoBtn);
-	container.appendChild(node);
-}
-
-function onclickDemoBtn() {
-	console.log('again');
-	container.innerHTML = '';
-	showLetters();
-}
-
-function fadeLetters() {
-	console.log('fade');
-	let letters = document.getElementsByClassName('letter');
-	for(let i = title.length; i<letters.length; i++) {
-		letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration/1000 + 's forwards';
-	}
-	setTimeout(function(){
-		container.removeEventListener('mouseenter', onMouseEnter);
-		container.removeEventListener('mousemove', onMouseMove);
-		container.style.cursor ='default';
-		let timer = 0;
-		for(let i = 0; i<title.length; i++) {
-			if(rotateAnim) {
-				console.log('rotate');
-				timer += 200;
-				setTimeout(function(){
-					letters[i].style.transition = 'left ' + fadeOutAnimDuration/1000 + 's' + ', top ' + fadeOutAnimDuration/1000 + 's'; 
-					letters[i].style.left = '45%';
-					letters[i].style.top = '40%';
-					letters[i].style.animation = 'rotate-360 ' + fadeOutAnimDuration/2000 + 's forwards';
-				}, timer);
-			}
-			else {
-				console.log('pas rotate');
-				letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration/2000 + 's forwards';
-				letters[i].style.transition = 'left ' + fadeOutAnimDuration/1000 + 's' + ', top ' + fadeOutAnimDuration/1000 + 's'; 
-				letters[i].style.left = '45%';
-				letters[i].style.top = '40%';
-			}
-		}
-		setTimeout(function(){document.querySelector('.final-title').classList.remove('hidden'); }, timer + fadeOutAnimDuration/2);
-		setTimeout(function(){document.querySelector('.demo-btn').classList.remove('hidden'); }, timer + fadeOutAnimDuration/2 + 1500);
-	
-	}, fadeOutAnimDuration);
-
-}
-
-function totalLettersCreate() {
-    let letters = [];
-    for (letter of title) {
-        for (let x = 0; x < multiplicator; x++) {
-            console.log(letter);
-            letters.push(letter);
-        }
-    }
-    return letters;
-}
-
 function showLetters() {
+	// get mouse position when entering the container
 	container.addEventListener('mouseenter', onMouseEnter);
+
+	// set letters new position when mouse is moving
 	container.addEventListener('mousemove', onMouseMove);
 
+	// start fade out animation (if selected)
 	if (fadeOutAnim) {
 		intervalFade = setTimeout(fadeLetters, fadeOutAnimStart);	
-	}
-	
-	if (demoEnable) {
-		demoButtonBuild()	
 	}
 
 	finalTitleCreate();
 
 	let letters = title.split('');
-	console.log(letters);
-
-	// let lettersCoordinates= [];
+	// console.log(letters);
 
 	let divisor = biggestLayerOffset;
 	let divGap = (smallestLayersOffset - biggestLayerOffset) / (multiplicator - 1);
 
+	// create every layers of text, starting with the bigger one and reducing size of every next layer
 	for (var i=0; i<multiplicator; i++) {
 		if(i > 0) {
 			divisor = divisor + divGap;
 		}
-		for (const letter of letters) {
+		for (const [j, letter] of letters.entries()) {
 			var node = document.createElement("span");
 			var textnode = document.createTextNode(letter);
 			node.appendChild(textnode);
 			
+			// font size of the layer, can not be < 1;
 			let newsize = size - i * sizeGap;
 			if(newsize < 1) {
 				newsize = 1;
 			}
 
+			if (j % multiplicator == i) {
+				node.classList.add("title-letter");
+			}
 			node.classList.add("letter");
 			node.style.fontSize = newsize + unit;
-			
-			let letterX = Math.floor(Math.random() * 90); ;
+
+			//  set random postion
+			let letterX = Math.floor(Math.random() * 100); ;
 			let letterY = Math.floor(Math.random() * 90); ;
 			node.style.left = letterX + "%";
 			node.style.top = letterY+ "%"; 
 			node.dataset.x = letterX;
 			node.dataset.y = letterY;
 			node.dataset.i = divisor.toFixed(3);
-			// let letterCoordinates = [];
-			// letterCoordinates.x = letterX;
-			// letterCoordinates.y = letterY;
-			// lettersCoordinates.push(letterCoordinates);
-			
+
 			container.appendChild(node); 
 		}
 	}
 	return;
-}
-
-function finalTitleCreate() {
-	var titleElt = document.createElement("h1");
-	titleElt.innerText = title;
-	titleElt.style.fontSize = size+unit;
-	titleElt.classList.add('hidden');
-	titleElt.classList.add('final-title');
-	container.appendChild(titleElt);
 }
 
 function onMouseEnter(e) {
@@ -215,216 +139,93 @@ function onMouseMove(e) {
 
 	let lettersElts = document.getElementsByClassName('letter');
 	for (const letterElt of lettersElts) {
-		// for (const [j, letterCoord] of lettersCoordinates.entries()) {
-			letterElt.style.left = (Number(letterElt.dataset.x)+(cx-x)/letterElt.dataset.i)+"%";
-			letterElt.style.top = (Number(letterElt.dataset.y)+(cy-y)/letterElt.dataset.i)+"%";
-		// }		
+		// where the magic happens
+		// difference between original mouse position and actual mouse position 
+		// divided to define the gap between letter movement and mouse movement
+		// and add to the letter position to set its new position
+		letterElt.style.left = (Number(letterElt.dataset.x)+(cx-x)/letterElt.dataset.i)+"%";
+		letterElt.style.top = (Number(letterElt.dataset.y)+(cy-y)/letterElt.dataset.i)+"%";
 	}
 }
 
-// var lettreTabElt = document.getElementsByClassName("lettre");
-	
-	// var lettreTitreTabElt = document.getElementsByClassName("lettreTitre");
 
-	// var lettreCoorTab = [];
-
-	// var maxX = container.offsetWidth;
-	// var maxY = container.offsetHeight;
-	// console.log(maxX, maxY);
-	
-	// var x;
-	// var y;
-	
-	// var cptOp;
-	// for(cptOp=0; cptOp<lettreTabElt.length; cptOp++) {
-	// 	lettreCoorTab[cptOp] = [];
-	// 	//console.log(lettreTabElt[cptOp]);
-	// 	var lettreX = Math.floor(Math.random() * 105); ;
-	// 	var lettreY = Math.floor(Math.random() * 105); ;
-	//     lettreTabElt[cptOp].style.left = lettreX + "vw";
-	//     lettreTabElt[cptOp].style.top = lettreY+ "vh"; 
-	// 	lettreCoorTab[cptOp].push(lettreX);
-	// 	lettreCoorTab[cptOp].push(lettreY);
-	// }
-	//console.log(lettreCoorTab);
-	
-	function getCoor(event) {
-		// console.log("e", event);
-		x = event.clientX;
-		y = event.clientY;
-		
-		
-		x = x*100/maxX;
-		y= y *100/maxY;
-	
-	}
-	
-	
-	
-	var cptOnMouseMove = 0; 
-
-	function showCoords(event) {
-		cptOnMouseMove++;
-		// console.log(cptOnMouseMove);
-		
-		//console.log(event);
-	    cx = event.clientX;
-	    cy = event.clientY;
-		
-		cx = cx*100/maxX;
-		cy= cy *100/maxY;
-		
-		
-		var cptOp;
-		for(cptOp=0; cptOp<lettreTabElt.length; cptOp++) {
-			if (cptOp < 13 ) {
-				lettreTabElt[cptOp].style.left = (lettreCoorTab[cptOp][0]+(cx-x)/4)+"vw";
-				lettreTabElt[cptOp].style.top = (lettreCoorTab[cptOp][1]+(cy-y)/4)+"vh"; 			
-				lettreTabElt[cptOp].classList.add("sp1");
-			}
-			else if (cptOp < 26 ) {
-				lettreTabElt[cptOp].style.left = (lettreCoorTab[cptOp][0]+(cx-x)/8)+"vw";
-				lettreTabElt[cptOp].style.top = (lettreCoorTab[cptOp][1]+(cy-y)/8)+"vh"; 			
-				lettreTabElt[cptOp].classList.add("sp2");
-			}
-			else  {
-				lettreTabElt[cptOp].style.left = (lettreCoorTab[cptOp][0]+(cx-x)/12)+"vw";
-				lettreTabElt[cptOp].style.top = (lettreCoorTab[cptOp][1]+(cy-y)/12)+"vh"; 			
-				lettreTabElt[cptOp].classList.add("sp3");
-			}			
-			
-			
+function fadeLetters() {
+	// console.log('fade');
+	let letters = document.getElementsByClassName('letter');
+	// start fade out animation for every layer of text except the bigger one
+	for(let i = 0; i<letters.length; i++) {
+		if (!letters[i].classList.contains('title-letter')) {
+			letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration/1000 + 's forwards';
 		}
-				
-		
-	    document.getElementById("tw").style.left = (15+(cx-x)/4)+"vw";
-	    document.getElementById("tw").style.top = (8+(cy-y)/4)+"vh";	  
-	  
-	    document.getElementById("te1").style.left = (30+(cx-x)/8)+"vw";
-	    document.getElementById("te1").style.top = (10+(cy-y)/8)+"vh";	  
-	  
-		document.getElementById("tb").style.left = (40+(cx-x)/12)+"vw";
-	    document.getElementById("tb").style.top = (10+(cy-y)/12)+"vh";  
-	  
-	    document.getElementById("td").style.left = (30+(cx-x)/8)+"vw";
-	    document.getElementById("td").style.top = (30+(cy-y)/8)+"vh";
-		
-	    document.getElementById("te2").style.left = (45+(cx-x)/12)+"vw";
-	    document.getElementById("te2").style.top = (40+(cy-y)/12)+"vh";	  
-	  
-	    document.getElementById("tv").style.left = (55+(cx-x)/4)+"vw";
-	    document.getElementById("tv").style.top = (30+(cy-y)/4)+"vh";  
-	  
-	    document.getElementById("tr").style.left = (37+(cx-x)/12)+"vw";
-	    document.getElementById("tr").style.top = (60+(cy-y)/12)+"vh";	  
-	  
-	    document.getElementById("te3").style.left = (50+(cx-x)/4)+"vw";
-	    document.getElementById("te3").style.top = (62+(cy-y)/4)+"vh";	  
-	  
-	    document.getElementById("tm").style.left = (62+(cx-x)/8)+"vw";
-	    document.getElementById("tm").style.top = (60+(cy-y)/8)+"vh";			
-		
-		
-		
-	
 	}
+	//  when the animation is over , the letters can not move anymore
+	setTimeout(function(){
+		container.removeEventListener('mouseenter', onMouseEnter);
+		container.removeEventListener('mousemove', onMouseMove);
+		container.style.cursor ='default';
 
-
-		
-	function onloadBody() {
-		var intervalFade = setTimeout(fadeletters, 300);	
-		var intervalRotate = setInterval(rotateLetters, 100);
-		
-		document.getElementById("sl0").style.cursor = "move";
-	}
-
-	function fadeletters() {
-
-		var cptOp;
-		for(cptOp=0; cptOp<lettreTabElt.length; cptOp++) {
-			lettreTabElt[cptOp].className = lettreTabElt[cptOp].className + ' fadeOut ';
-		}
-		
-	}
-	
-	
-
-	function rotateLetters(className) {
-
-		timerTitle++;
-		
-		switch (timerTitle) {
-
-			
-			case 59:
-				//arret de la fct showcoords(mvt des lettres avec le mvt de la souris)
-				document.getElementById("sl0").onmousemove = null;
-				
-				document.getElementById("sl0").style.cursor = "default";			
-		
-				for(cptTitre=0; cptTitre<lettreTitreTabElt.length; cptTitre++) {
-					lettreTitreTabElt[cptTitre].style.transition = "2s";
-				}	
-			break;	
-			
-			case 60:
-				document.getElementById("tw").className = document.getElementById("tw").className + ' rotate';
-				document.getElementById("tw").style.left = "35vw";
-				document.getElementById("tw").style.top = "10vh";	  				
-			break;			
-
-			case 65:
-				document.getElementById("te1").className = document.getElementById("te1").className + ' rotate';
-				document.getElementById("te1").classList.remove("sp2");
-				document.getElementById("te1").classList.add("sp1");				
-				document.getElementById("te1").style.left = "45vw";
-				document.getElementById("te1").style.top = "10vh";	 					
-				document.getElementById("td").className = document.getElementById("td").className + ' rotate';
-				document.getElementById("td").style.left = "45vw";
-				document.getElementById("td").style.top = "30vh";				
-			break;			
-
-			case 70:
-				document.getElementById("tb").className = document.getElementById("tb").className + ' rotate';
-				document.getElementById("tb").style.left = "55vw";
-				document.getElementById("tb").style.top = "10vh";  				
-				document.getElementById("te2").className = document.getElementById("te2").className + ' rotate';
-				
-				document.getElementById("te2").classList.remove("sp2");
-				document.getElementById("te2").classList.add("sp1");	
-				document.getElementById("te2").style.left = "50vw";
-				document.getElementById("te2").style.top = "30vh";	 					
-				document.getElementById("tr").className = document.getElementById("tr").className + ' rotate';	
-				document.getElementById("tr").style.left = "50vw";
-				document.getElementById("tr").style.top = "50vh";					
-			break;			
-			case 75:
-				document.getElementById("tv").className = document.getElementById("tv").className + ' rotate';
-				document.getElementById("tv").style.left = "60vw";
-				document.getElementById("tv").style.top = "30vh";  				
-				document.getElementById("te3").className = document.getElementById("te3").className + ' rotate';
-				document.getElementById("te3").classList.remove("sp2");				
-				document.getElementById("te3").classList.add("sp1");	
-				document.getElementById("te3").style.left = "55vw";
-				document.getElementById("te3").style.top = "50vh";	  					
-			break;			
-
-			case 80:
-				document.getElementById("tm").className = document.getElementById("tm").className + ' rotate';
-				document.getElementById("tm").style.left = "60vw";
-				document.getElementById("tm").style.top = "50vh";						
-			break;		
-			
-
-			case 95:					
-				document.getElementById("finalTitle").classList.remove("hidden");			
-			break;		
-
-	
-			case 105:
-				if (navElt.classList.contains("hidden")) {
-					introSkip();
+		// title letters
+		let timer = 0;
+		for(let i = 0; i<letters.length; i++) {
+			if (letters[i].classList.contains('title-letter')) {
+				// start rotate (if selected)
+				if(rotateAnim) {
+					// console.log('rotate');
+					timer += 200;
+					setTimeout(function(){
+						// letters move to the center
+						letters[i].style.transition = 'left ' + fadeOutAnimDuration/1000 + 's' + ', top ' + fadeOutAnimDuration/1000 + 's' + ', font-size ' + fadeOutAnimDuration/1000 + 's'; 
+						letters[i].style.fontSize = size + unit;
+						letters[i].style.left = '45%';
+						letters[i].style.top = '40%';
+						letters[i].style.animation = 'rotate-360 ' + fadeOutAnimDuration/2000 + 's forwards';
+					}, timer);
 				}
-			break;		
+				else {
+					console.log('pas rotate');
+					letters[i].style.animation = 'fade-out ' + fadeOutAnimDuration/2500 + 's forwards';
+					letters[i].style.transition = 'left ' + fadeOutAnimDuration/1000 + 's' + ', top ' + fadeOutAnimDuration/1000 + 's' + ', font-size ' + fadeOutAnimDuration/1000 + 's';
+					letters[i].style.fontSize = size + unit;
+					letters[i].style.left = '45%';
+					letters[i].style.top = '40%';
+				}
+			}
 		}
-	}
+		
+		setTimeout(function(){document.querySelector('.final-title').classList.remove('hidden'); }, timer + fadeOutAnimDuration/2);
+			
+		// show demo button at the end of the animation (if selected)
+		if (demoEnable) {
+			demoButtonBuild()	
+			setTimeout(function(){document.querySelector('.demo-btn').classList.remove('hidden'); }, timer + fadeOutAnimDuration/2 + 1500);
+		}
+	
+	}, fadeOutAnimDuration);
+
+}
+
+function finalTitleCreate() {
+	var titleElt = document.createElement("h1");
+	titleElt.innerText = title;
+	titleElt.style.fontSize = size+unit;
+	titleElt.classList.add('hidden');
+	titleElt.classList.add('final-title');
+	container.appendChild(titleElt);
+}
+
+function demoButtonBuild() {
+	var node = document.createElement("div");
+	var textnode = document.createTextNode("again ?");
+	node.appendChild(textnode);
+	node.classList.add("demo-btn");
+	node.classList.add("hidden");
+	node.addEventListener('click', onclickDemoBtn);
+	container.appendChild(node);
+}
+
+// if demo button is clicked, empty the container and reload the letters
+function onclickDemoBtn() {
+	// console.log('again');
+	container.innerHTML = '';
+	showLetters();
+}
